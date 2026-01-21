@@ -425,23 +425,27 @@ class CountdownPlugin(BasePlugin):
             # Get countdown info
             countdown_id = current_countdown.get('id')
             countdown_name = current_countdown.get('name', 'Countdown')
-            countdown_image_list = current_countdown.get('image', [])
+
+            # Support both old array format and new simplified string format
+            countdown_image = current_countdown.get('image_path')
+            if not countdown_image:
+                # Fallback to old array format for backwards compatibility
+                countdown_image_list = current_countdown.get('image', [])
+                if countdown_image_list and isinstance(countdown_image_list, list) and len(countdown_image_list) > 0:
+                    image_info = countdown_image_list[0]
+                    countdown_image = image_info.get('path') if isinstance(image_info, dict) else None
 
             # Load and draw image on left 1/3rd
-            if countdown_image_list and isinstance(countdown_image_list, list) and len(countdown_image_list) > 0:
-                image_info = countdown_image_list[0]
-                image_path = image_info.get('path') if isinstance(image_info, dict) else None
+            if countdown_image:
+                # Check cache first
+                if countdown_id not in self.cached_images:
+                    loaded_img = self._load_and_scale_image(countdown_image, image_width, display_height)
+                    if loaded_img:
+                        self.cached_images[countdown_id] = loaded_img
 
-                if image_path:
-                    # Check cache first
-                    if countdown_id not in self.cached_images:
-                        loaded_img = self._load_and_scale_image(image_path, image_width, display_height)
-                        if loaded_img:
-                            self.cached_images[countdown_id] = loaded_img
-
-                    # Paste cached image
-                    if countdown_id in self.cached_images:
-                        canvas.paste(self.cached_images[countdown_id], (0, 0))
+                # Paste cached image
+                if countdown_id in self.cached_images:
+                    canvas.paste(self.cached_images[countdown_id], (0, 0))
 
             # Get countdown value
             countdown_data = self.countdown_values.get(countdown_id, {'text': '---', 'is_today': False})

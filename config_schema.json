@@ -11,68 +11,59 @@
     },
     "countdowns": {
       "type": "array",
-      "description": "List of countdown entries to display",
+      "title": "Countdowns",
+      "description": "Manage your countdown entries. Each countdown can have a custom image, name, and target date.",
+      "x-display": "table",
       "items": {
         "type": "object",
+        "title": "Countdown Entry",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Unique identifier for this countdown"
+            "title": "ID",
+            "description": "Unique identifier (auto-generated)",
+            "x-display": "hidden"
           },
           "enabled": {
             "type": "boolean",
+            "title": "Enabled",
             "default": true,
-            "description": "Enable or disable this specific countdown"
+            "description": "Enable or disable this countdown"
           },
           "name": {
             "type": "string",
-            "description": "Display name for the countdown (e.g., 'Birthday', 'Vacation')",
+            "title": "Name",
+            "description": "Display name (e.g., 'Birthday', 'Vacation')",
             "minLength": 1,
             "maxLength": 30
           },
           "target_date": {
             "type": "string",
+            "title": "Target Date",
             "format": "date",
-            "description": "Target date for the countdown (YYYY-MM-DD format)"
+            "description": "Date to count down to (YYYY-MM-DD)"
           },
-          "image": {
-            "type": "array",
-            "x-widget": "file-upload",
+          "image_path": {
+            "type": "string",
+            "title": "Image",
+            "description": "Upload an image for this countdown",
+            "x-widget": "file-upload-single",
             "x-upload-config": {
               "endpoint": "/api/v3/plugins/assets/upload",
               "plugin_id": "countdown",
-              "max_files": 1,
               "allowed_types": ["image/png", "image/jpeg", "image/bmp", "image/gif"],
               "max_size_mb": 5
-            },
-            "description": "Upload an image for this countdown",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "Unique identifier for this image"
-                },
-                "path": {
-                  "type": "string",
-                  "description": "File path relative to project root"
-                },
-                "uploaded_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "description": "Upload timestamp"
-                }
-              },
-              "required": ["id", "path"]
             }
           },
           "display_order": {
             "type": "integer",
+            "title": "Order",
             "default": 0,
-            "description": "Order for rotation (lower numbers first)"
+            "description": "Display order (lower = first)",
+            "minimum": 0
           }
         },
-        "required": ["id", "name", "target_date"]
+        "required": ["name", "target_date"]
       }
     },
     "font_family": {
